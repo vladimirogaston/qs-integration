@@ -1,28 +1,14 @@
-const fs = require('fs')
+const LogsDao = require('../infraestructure/data/LogsDao');
+
 class Logger {
 
-    constructor() {
-        const flag = { flags: 'a' }
-        this.logger = fs.createWriteStream('../logs/log.txt', flag)
-        this.errors = fs.createWriteStream('../logs/errors.txt', flag)
+    constructor(storage) {
+        if(storage == undefined) throw new Error('Storage can not be undefined')
+        this.storage = storage
     }
 
-    error = (text) => {
-        try {
-            const trace = this.#trace(text)
-            this.errors.write(trace);
-        } catch (e) {
-            console.error("Logger error: " + e)
-        }
-    }
-
-    info = (text) => {
-        try {
-            const trace = this.#trace(text)
-            this.logger.write(trace)
-        } catch (e) {
-            console.error("Logger error: " + e)
-        }
+    log = trace => {
+        this.storage.save(trace)
     }
 
     #trace = (text) => {

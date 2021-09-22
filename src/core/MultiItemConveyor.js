@@ -1,14 +1,13 @@
 const mapToZohoProduct = require('./bdiToZoho.mapper')
-const Logger = require('./logger')
 const delay = require('./delay')
 
 class MultiItemConveyor {
 
-    constructor(productsDao, zohoClient) {
+    constructor(productsDao, zohoClient, logger) {
         this.productsDao = productsDao
         this.caller = zohoClient
         this.DELAY_TIME = 1000 * 30
-        this.logger = new Logger()
+        this.logger = logger
     }
 
     /**
@@ -22,14 +21,16 @@ class MultiItemConveyor {
             
             let classification = await this.classify(bdiProducts)
             let upsertResult = await this.upsert(classification)
+            
             let result = await this.processUpsertResults(upsertResult.creates, classification.creates)          
             result = await this.processUpsertResults(upsertResult.updates, classification.updates)
             ret = ret.concat(result)
-
+            
+            this.#logResults(ret)
             delay(this.DELAY_TIME)
+            
             bdiProducts = await this.readProducts()
         }
-        console.log('RET ', ret)
         return ret
     }
 
@@ -108,6 +109,12 @@ class MultiItemConveyor {
         return ret
     }
 
+    /**
+     * 
+     * @param {*} apiResponse 
+     * @param {*} prod 
+     * @returns 
+     */
     processApiResponse = async (apiResponse, prod) => {
         let ret = undefined
         if (apiResponse.status === "success") {
@@ -158,6 +165,12 @@ class MultiItemConveyor {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
         return apiResponse
+    }
+
+    #logResults = results =>{
+        results.forEach(res=>{
+            this.logger.log(res)
+        })
     }
 }
 
