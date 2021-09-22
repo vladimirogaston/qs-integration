@@ -1,0 +1,14 @@
+{
+    "data": [
+      {
+        "code": "INVALID_DATA",
+        "details": {
+          "expected_data_type": "long",
+          "api_name": "id",
+          "json_path": "$.data[0].id"
+        },
+        "message": "invalid data",
+        "status": "error"
+      }
+    ]
+  }

@@ -1,0 +1,10 @@
+{
+    "code":"INVALID_QUERY",
+    "details":{
+       "reason":"invalid operator found",
+       "api_name":"Product_Code",
+       "operator":"!equals"
+    },
+    "message":"invalid query formed",
+    "status":"error"
+ }

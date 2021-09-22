@@ -1,0 +1,20 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "code": "3123",
+            "name": "pelota cuadrada",
+            "desc": "ficticia",
+            "stock": 23,
+            "invalid":false
+         },
+         {
+            "id": 2,
+            "code": "3123",
+            "name": "pelota cuadrada",
+            "desc": "ficticia",
+            "stock": 23,
+            "invalid": false
+         }
+    ]
+}

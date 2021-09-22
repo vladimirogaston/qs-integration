@@ -1,0 +1,12 @@
+{
+  "database": {
+    "server": "172.24.10.22",
+    "user": "USER_CRM",
+    "password": "Crm156157" ,
+    "database" : "QUISUP",
+    "options": {
+      "encrypt": true,
+      "enableArithAbort": true
+    }
+  }
+}

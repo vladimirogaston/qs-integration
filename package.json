@@ -1,0 +1,25 @@
+{
+  "name": "nodejscustom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "nodejssdk.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^27.1.1"
+  },
+  "dependencies": {
+    "lowdb": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "mssql": "^6.2.1",
+    "node-fetch": "^2.6.2",
+    "sqlstring": "^2.3.2",
+    "zcrmsdk": "0.0.20"
+  }
+}
