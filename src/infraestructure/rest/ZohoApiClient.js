@@ -1,7 +1,11 @@
 const fetch = require('node-fetch')
 
-class ZohoApiCaller {
+class ZohoApiClient {
 
+  /**
+   * 
+   * @param {*} module name like Products, Accounts, etc 
+   */
   constructor(module) {
     require('dotenv').config()
     this.urlZohoAPI = process.env.urlZohoAPI
@@ -11,30 +15,43 @@ class ZohoApiCaller {
 
   /**
    * 
-   * @param {*} id should be a string 
+   * @param {*} id as a string 
    * @returns 
    */
-  read = async (id) => {
-    const url = this.urlZohoAPI + "getRecord?module=" + this.module + "&id=" + id + "&token=" + this.token;
-    let response = await fetch(url);
-    response = await response.json();
-    return response
+  read = async id => {
+    try {
+      const url = this.urlZohoAPI + "getRecord?module=" + this.module + "&id=" + id + "&token=" + this.token;
+      let response = await fetch(url);
+      response = await response.json();
+      return response
+    } catch (error) {
+      console.log('Error to read: ' + error)
+    }
   }
 
   /**
    * @param {*} ie. (Product_Code:equals:123T) 
    */
-  search = async (criteria) => {
-    var url = this.urlZohoAPI + "searchRecords?module=" + this.module
-    url += "&criteria=" + criteria + "&token=" + this.token
-    let response = await fetch(url);
-    response = await response.json();
-    if (response.data === 'Sin resultados para el SEARCH') {
-      response = undefined
+  search = async criteria => {
+    try {
+      var url = this.urlZohoAPI + "searchRecords?module=" + this.module
+      url += "&criteria=" + criteria + "&token=" + this.token
+      let response = await fetch(url);
+      response = await response.json();
+      if (response.data === 'Sin resultados para el SEARCH') {
+        response = undefined
+      }
+      return response
+    } catch (error) {
+      console.log('Error to search: ' + error)
     }
-    return response
   }
 
+  /**
+   * 
+   * @param {*} itemId as string 
+   * @returns 
+   */
   delete = async itemId => {
     try {
       const options = this.#makeFetchOptions('DELETE', JSON.stringify({
@@ -102,4 +119,4 @@ class ZohoApiCaller {
   }
 }
 
-module.exports = ZohoApiCaller
+module.exports = ZohoApiClient

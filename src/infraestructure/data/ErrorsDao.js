@@ -1,12 +1,12 @@
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync.js')
 
-class LogsDao {
+class ErrorsDao {
 
     constructor() {
-        let adapter = new FileSync("./logsDb.json")
+        let adapter = new FileSync("./errorsDb.json")
         this.db = low(adapter)
-        this.db.defaults({ logs: [] }).write()
+        this.db.defaults({ errors: [] }).write()
         this.module = 'logs'
     }
 
@@ -16,10 +16,15 @@ class LogsDao {
             .write()
     }
 
-    findByDateAndStatus = (logDate, logStatus) => {
+    /**
+     * 
+     * @param {*} logDate 'Fri Sep 24 2021' 
+     * @returns 
+     */
+    findByDate = (logDate) => {
         return this.db.get(this.module)
             .chain()
-            .find({ status: logStatus, date: logDate })
+            .find({ date: logDate })
             .value()
     }
 
@@ -30,4 +35,4 @@ class LogsDao {
     }
 }
 
-module.exports = LogsDao
+module.exports = ErrorsDao

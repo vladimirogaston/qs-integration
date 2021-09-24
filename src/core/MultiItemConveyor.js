@@ -3,11 +3,11 @@ const delay = require('./delay')
 
 class MultiItemConveyor {
 
-    constructor(productsDao, zohoClient, logger) {
-        this.productsDao = productsDao
+    constructor(productsPersistence, zohoClient, errorsPersistence) {
+        this.productsPersistence = productsPersistence
         this.caller = zohoClient
         this.DELAY_TIME = 1000 * 30
-        this.logger = logger
+        this.errorsPersistence = errorsPersistence
     }
 
     /**
@@ -26,11 +26,9 @@ class MultiItemConveyor {
             result = await this.processUpsertResults(upsertResult.updates, classification.updates)
             ret = ret.concat(result)
             
-            this.#logResults(ret)
             delay(this.DELAY_TIME)
-            
             bdiProducts = await this.readProducts()
-        }
+        }        
         return ret
     }
 
@@ -39,7 +37,7 @@ class MultiItemConveyor {
     * @returns [] ZohoCRM-Products
     */
     readProducts = async () => {
-        let ret = (await this.productsDao.readFirst(100))
+        let ret = (await this.productsPersistence.readFirst(100))
         ret = ret.map(p => mapToZohoProduct(p))
         return ret
     }
@@ -104,6 +102,9 @@ class MultiItemConveyor {
         let ret = []
         for (let INDEX = 0; INDEX < apiResponses.length; INDEX++) {
             let result = await this.processApiResponse(apiResponses[INDEX], products[INDEX])
+            if(result.status == 'error') {
+                this.errorsPersistence.save(result)
+            }
             ret.push(result)
         }
         return ret
@@ -133,7 +134,7 @@ class MultiItemConveyor {
      */
     processSuccessResponse = async (apiResponse, prod) => {
         let ret = undefined
-        let resultDeletion = await this.productsDao.deleteByCode(prod.Product_Code.toString())
+        let resultDeletion = await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
         if (resultDeletion === 1) {
              ret = {
                 Module_Name: this.caller.getModuleName(),
@@ -148,7 +149,7 @@ class MultiItemConveyor {
                 message: "ERROR TO DELETE FROM BDI",
                 Product_Code: prod.Product_Code,
                 status: 'error',
-                date: new Date()
+                date: (new Date()).toDateString()
             }
         }
         return ret
@@ -165,12 +166,6 @@ class MultiItemConveyor {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
         return apiResponse
-    }
-
-    #logResults = results =>{
-        results.forEach(res=>{
-            this.logger.log(res)
-        })
     }
 }
 
