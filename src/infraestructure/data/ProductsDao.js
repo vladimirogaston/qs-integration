@@ -1,6 +1,6 @@
 const sqlDb = require('./sqlDB')
 
-class ProductsDao {
+class ProductsDAO {
 
     constructor() {
         this.sqlConnection = sqlDb
@@ -29,4 +29,4 @@ class ProductsDao {
     }
 }
 
-module.exports = ProductsDao
+module.exports = ProductsDAO

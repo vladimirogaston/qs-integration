@@ -4,9 +4,9 @@ const FileSync = require('lowdb/adapters/FileSync.js')
 class ErrorsDao {
 
     constructor() {
-        let adapter = new FileSync("./errorsDb.json")
+        let adapter = new FileSync("./logsDB.json")
         this.db = low(adapter)
-        this.db.defaults({ errors: [] }).write()
+        this.db.defaults({ logs: [] }).write()
         this.module = 'logs'
     }
 

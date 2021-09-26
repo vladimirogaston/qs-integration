@@ -1,7 +1,7 @@
-const mapToZohoProduct = require('./bdiToZoho.mapper')
-const delay = require('./delay')
+const mapToZohoProduct = require('./bdiToZoho.function')
+const delay = require('./delay.function')
 
-class MultiItemConveyor {
+class ProductConveyorToCRM {
 
     constructor(productsPersistence, zohoClient, errorsPersistence) {
         this.productsPersistence = productsPersistence
@@ -17,18 +17,18 @@ class MultiItemConveyor {
     transport = async () => {
         let ret = []
         let bdiProducts = await this.readProducts()
-        while (bdiProducts.length !== 0) {          
-            
+        while (bdiProducts.length !== 0) {
+
             let classification = await this.classify(bdiProducts)
             let upsertResult = await this.upsert(classification)
-            
-            let result = await this.processUpsertResults(upsertResult.creates, classification.creates)          
+
+            let result = await this.processUpsertResults(upsertResult.creates, classification.creates)
             result = await this.processUpsertResults(upsertResult.updates, classification.updates)
             ret = ret.concat(result)
-            
+
             delay(this.DELAY_TIME)
             bdiProducts = await this.readProducts()
-        }        
+        }
         return ret
     }
 
@@ -50,8 +50,8 @@ class MultiItemConveyor {
      */
     classify = async records => {
         let ret = {
-          creates: [],
-          updates: []  
+            creates: [],
+            updates: []
         }
         for (let INDEX = 0; INDEX < records.length; INDEX++) {
             const CRITERIA = '(Product_Code:equals:' + records[INDEX].Product_Code + ')'
@@ -102,7 +102,7 @@ class MultiItemConveyor {
         let ret = []
         for (let INDEX = 0; INDEX < apiResponses.length; INDEX++) {
             let result = await this.processApiResponse(apiResponses[INDEX], products[INDEX])
-            if(result.status == 'error') {
+            if (result.status == 'error') {
                 this.errorsPersistence.save(result)
             }
             ret.push(result)
@@ -136,7 +136,7 @@ class MultiItemConveyor {
         let ret = undefined
         let resultDeletion = await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
         if (resultDeletion === 1) {
-             ret = {
+            ret = {
                 Module_Name: this.caller.getModuleName(),
                 Created_Time: apiResponse.details.Created_Time,
                 id: apiResponse.details.id,
@@ -169,4 +169,4 @@ class MultiItemConveyor {
     }
 }
 
-module.exports = MultiItemConveyor
+module.exports = ProductConveyorToCRM

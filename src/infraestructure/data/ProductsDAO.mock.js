@@ -1,4 +1,4 @@
-class ProductsDao {
+class ProductsDAO {
 
     constructor(numberOfRecords) {
         this.products = []
@@ -29,4 +29,4 @@ class ProductsDao {
     }
 }
 
-module.exports = ProductsDao
+module.exports = ProductsDAO
