@@ -12,8 +12,8 @@ class ProductsAPI {
         const router = express.Router()
         router.get(this.endPoint, async (req, res) => {
             try {
-                let res = await this.service.transport()
-                res.status(200).send(res)
+                let result = await this.service.transport()
+                res.status(200).send(result)
             } catch (err) {
                 res.status(500).send(err)
             }
