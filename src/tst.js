@@ -1,4 +1,4 @@
-const container = require('./bottle.container')
+const ProductsConveyorToCRM = require('../src/core/ProductConveyorToCRM')
 
-const persistence = container.ProductsPersistence
-persistence.readFirst(5).then(data=>console.log(data)).catch(err=>console.log(err))
+let conveyor = ProductsConveyorToCRM.construct()
+console.log(conveyor !== undefined)

@@ -9,7 +9,7 @@ const app = express()
 app.use(bodyParser.json())
 app.use(cors())
 
-app.use('/zoho', new ProuductsAPI(container.conveyor).endPoints())
+app.use('/zoho', new ProuductsAPI('/fetch-products').endPoints())
 
 const PORT = process.env.PORT || 4040
 app.listen(PORT, () => {

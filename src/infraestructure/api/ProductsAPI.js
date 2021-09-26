@@ -1,10 +1,11 @@
 const express = require('express')
+const container = require('../../bottle.container')
 
 class ProductsAPI {
 
-    constructor(service) {
-        this.service = service
-        this.endPoint = '/fetch-products'
+    constructor(endPoint) {
+        this.service = container.ProductConveyorToCRM
+        this.endPoint = endPoint
     }
 
     endPoints() {
