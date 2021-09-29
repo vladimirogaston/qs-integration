@@ -13,7 +13,7 @@ function makeTestConveyor() {
 
     const logs = new LogsAspect()
     conveyor.transport = logs.messureTime(conveyor.transport)
-    conveyor.processApiResponse = logs.after(conveyor.processApiResponse)
+    conveyor.processUpsertResults = logs.after(conveyor.processUpsertResults)
 
     return conveyor
 }
