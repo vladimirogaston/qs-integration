@@ -4,6 +4,7 @@ class ProductsDAO {
 
     constructor() {
         this.sqlConnection = sqlDb
+        this.table = 'dbo.$Sheet1'
     }
 
     /**
@@ -12,7 +13,13 @@ class ProductsDAO {
      * @returns []
      */
     readFirst = async numberOfRecords => {
-        const statement = 'SELECT ALL FROM products LIMIT ' + numberOfRecords
+        const statement = `SELECT ALL FROM ${this.table} P WHERE P.USR_VTMCLH_LOGGER IS NULL AND USR_VTMCLH_UPDCRM == FALSE LIMIT ${numberOfRecords}`
+        let result = await this.sqlConnection.query(statement)
+        return result
+    }
+
+    updateFailsToTrueByCode = async (code, err) => {
+        const statement = `UPDATE ${this.table} SET USR_VTMCLH_LOGGER = ${err} WHERE USR_STINTE_INDCOD = ${code}`
         let result = await this.sqlConnection.query(statement)
         return result
     }
@@ -23,7 +30,7 @@ class ProductsDAO {
      * @returns 
      */
     deleteByCode = async code => {
-        const statement = 'DELETE FROM products p WHERE p.code = ' + code
+        const statement = `DELETE FROM ${this.table} P WHERE P.USR_STINTE_INDCOD = ${code} AND P.USR_VTMCLH_UPDCRM = TRUE`
         let result = await this.sqlConnection.query(statement)
         return result
     }
