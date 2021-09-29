@@ -5,16 +5,29 @@ class ProductsDAO {
         this.numberOfRecords = numberOfRecords
         for (let COUNT = 0; COUNT < this.numberOfRecords; COUNT++) {
             this.products.push({
-                code: (COUNT + 1).toString(),
-                name: "prod" + COUNT,
-                desc: "tst" + COUNT,
-                stock: COUNT + 3
+                USR_STINTE_TIPPRO: `Familia${COUNT}`,
+                USR_STINTE_ARTCOD: `PROD ${COUNT}`,
+                USR_STINTE_DESCR: 'DESCRIPRCION',
+                USR_STINTE_INDCOD: `${COUNT+2}TS`,
+                USR_STINTE_STOCKS: COUNT+1,
+                USR_VTMCLH_LOGGER: undefined,
+                USR_VTMCLH_UPDCRM: false
             })
         }
     }
 
     readFirst = async nmbr => {
-        return this.products.slice(0, nmbr)
+        return this.products
+            .slice(0, nmbr)
+            .filter(prod=> prod.USR_VTMCLH_LOGGER == undefined && prod.USR_VTMCLH_UPDCRM == false)
+    }
+
+    updateFailsToTrueByCode = async code => {
+        this.products.forEach(prod=>{
+            if(prod.USR_STINTE_INDCOD == code){
+                prod.USR_VTMCLH_LOGGER = 'error'
+            }
+        })
     }
 
     /**
@@ -22,9 +35,9 @@ class ProductsDAO {
      * @param {*} code is an string 
      * @returns 
      */
-    deleteByCode = async code => {
+     deleteByCode = async code => {
         const lenAfter = this.products.length
-        this.products = this.products.filter(p => p.code !== code)
+        this.products = this.products.filter(p => p.USR_STINTE_INDCOD !== code)
         return lenAfter - this.products.length
     }
 }

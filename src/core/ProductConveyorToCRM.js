@@ -93,7 +93,6 @@ class ProductConveyorToCRM {
     }
 
     /**
-     * @Todo TEST THIS!
      * @param {*} apiResponses [] api response 
      * @param {*} products [] products
      * @returns 
@@ -101,29 +100,17 @@ class ProductConveyorToCRM {
     processUpsertResults = async (apiResponses, products) => {
         let ret = []
         for (let INDEX = 0; INDEX < apiResponses.length; INDEX++) {
-            let result = await this.processApiResponse(apiResponses[INDEX], products[INDEX])
-            if (result.status == 'error') {
-                this.errorsPersistence.save(result)
+           const RESPONSE = apiResponses[INDEX]
+           const PRODUCT = products[INDEX]
+           let aux = undefined 
+           if (RESPONSE.status === "success") {
+                aux = await this.processSuccessResponse(RESPONSE, PRODUCT)
+            } else if (RESPONSE.status === "error") {
+                aux = this.processErrorResponse(RESPONSE, PRODUCT)
             }
-            ret.push(result)
+            ret.push(aux)
         }
         return ret
-    }
-
-    /**
-     * 
-     * @param {*} apiResponse 
-     * @param {*} prod 
-     * @returns 
-     */
-    processApiResponse = async (apiResponse, prod) => {
-        let ret = undefined
-        if (apiResponse.status === "success") {
-            ret = await this.processSuccessResponse(apiResponse, prod)
-        } else if (apiResponse.status === "error") {
-            ret = this.processErrorResponse(apiResponse, prod)
-        }
-        return ret;
     }
 
     /**
@@ -157,7 +144,6 @@ class ProductConveyorToCRM {
 
     /**
      * 
-     * @todo definir que hacer con los items que fallaron al upsert
      * @param {*} apiResponse one api response { ... }
      * @param {*} prod one ZohoCRM Product
      * @returns 
@@ -165,6 +151,9 @@ class ProductConveyorToCRM {
     processErrorResponse = (apiResponse, prod) => {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
+
+        this.errorsPersistence.save(apiResponse)
+        this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
         return apiResponse
     }
 }
