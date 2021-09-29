@@ -18,6 +18,12 @@ class ProductsDAO {
         return result
     }
 
+    updateCRMtoTrueByCode = async code => {
+        const statement = `UPDATE ${this.table} SET USR_VTMCLH_UPDCRM = TRUE WHERE USR_STINTE_INDCOD = ${code}`
+        let result = await this.sqlConnection.query(statement)
+        return result
+    }
+
     updateFailsToTrueByCode = async (code, err) => {
         const statement = `UPDATE ${this.table} SET USR_VTMCLH_LOGGER = ${err} WHERE USR_STINTE_INDCOD = ${code}`
         let result = await this.sqlConnection.query(statement)
