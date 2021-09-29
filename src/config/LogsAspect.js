@@ -41,6 +41,7 @@ class LogsAspect {
             console.log('-- Calling logger messureTime --')
             console.log('-- function name: ', fn.name)
             console.log('-- Execution time ', (difference / 1000) + 's')
+            return result
         }
     }
 }

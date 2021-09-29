@@ -21,7 +21,6 @@
     "mssql": "^6.2.1",
     "node-fetch": "^2.6.2",
     "nodemailer": "^6.6.5",
-    "sqlstring": "^2.3.2",
-    "zcrmsdk": "0.0.20"
+    "sqlstring": "^2.3.2"
   }
 }

@@ -1,4 +1,6 @@
-let date1 = new Date().toDateString()
-let date2 = new Date().toDateString()
+const makeTestConveyor = require('../src/config/makeTestConveyor.function')
 
-console.log(date1 === date2)
+const service = makeTestConveyor()
+service.transport()
+    .then(data => { console.log(data) })
+    .catch(err => { console.log(err) })

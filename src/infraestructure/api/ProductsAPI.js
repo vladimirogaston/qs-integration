@@ -1,5 +1,5 @@
 const express = require('express')
-const container = require('../../bottle.container')
+const container = require('../../config/bottle.container')
 
 class ProductsAPI {
 
@@ -21,4 +21,5 @@ class ProductsAPI {
         return router
     }
 }
+
 module.exports = ProductsAPI
