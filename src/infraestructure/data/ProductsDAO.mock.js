@@ -22,6 +22,14 @@ class ProductsDAO {
             .filter(prod=> prod.USR_VTMCLH_LOGGER == undefined && prod.USR_VTMCLH_UPDCRM == false)
     }
 
+    updateCRMtoTrueByCode = async code => {
+        this.products.forEach(prod=>{
+            if(prod.USR_STINTE_INDCOD == code){
+                prod.USR_VTMCLH_UPDCRM = true
+            }
+        })
+    }
+
     updateFailsToTrueByCode = async code => {
         this.products.forEach(prod=>{
             if(prod.USR_STINTE_INDCOD == code){

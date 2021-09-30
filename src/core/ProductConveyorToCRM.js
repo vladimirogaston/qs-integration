@@ -138,6 +138,9 @@ class ProductConveyorToCRM {
                 status: 'error',
                 date: (new Date()).toDateString()
             }
+            await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
+            await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
+            // errorsPersistence.save
         }
         return ret
     }
