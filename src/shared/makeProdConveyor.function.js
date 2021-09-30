@@ -2,7 +2,10 @@ const ProductConveyorToCRM = require('../core/ProductConveyorToCRM')
 const ProductsDAO = require('../infraestructure/data/ProductsDao')
 const LogsDAO = require('../infraestructure/data/LogsDAO')
 const ZohoApiClient = require('../infraestructure/rest/ZohoApiClient')
-const LogsAspect = require('./LogsAspect')
+const FileLoggerProxy = require('./FileLoggerProxy')
+
+const INFO = 'info'
+const ERROR = 'error'
 
 function makeProdConveyor() {
     let productsDao = new ProductsDAO()
@@ -10,9 +13,10 @@ function makeProdConveyor() {
     let client = new ZohoApiClient('Products')
     let conveyor = new ProductConveyorToCRM(productsDao, client, logsDao)
 
-    const logs = new LogsAspect()
-    conveyor.transport = logs.messureTime(conveyor.transport)
-    conveyor.processApiResponse = logs.after(conveyor.processApiResponse)
+    const logs = new FileLoggerProxy()
+    conveyor.processSuccesDeletionFromBDI = logs.around(conveyor.processSuccesDeletionFromBDI, INFO)
+    conveyor.processErrorToDeleteFromBDI = logs.around(conveyor.processErrorToDeleteFromBDI, ERROR)
+    conveyor.processErrorResponse = logs.around(conveyor.processErrorResponse, ERROR)
 
     return conveyor
 }

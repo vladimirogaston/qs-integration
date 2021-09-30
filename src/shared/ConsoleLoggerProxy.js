@@ -1,4 +1,4 @@
-class LogsAspect {
+class ConsoleLoggerProxy {
 
     before(fn) {
         return async function () {
@@ -46,4 +46,4 @@ class LogsAspect {
     }
 }
 
-module.exports = LogsAspect
+module.exports = ConsoleLoggerProxy

@@ -1,6 +1,9 @@
 const mapToZohoProduct = require('./bdiToZoho.function')
 const delay = require('./delay.function')
 
+const ERROR = 'error'
+const SUCCESS = 'success'
+
 class ProductConveyorToCRM {
 
     constructor(productsPersistence, zohoClient, errorsPersistence) {
@@ -33,7 +36,6 @@ class ProductConveyorToCRM {
     }
 
     /**
-    * 
     * @returns [] ZohoCRM-Products
     */
     readProducts = async () => {
@@ -43,10 +45,7 @@ class ProductConveyorToCRM {
     }
 
     /**
-     * 
-     * @TODO contemplar searchResponse => invalid! 
      * @returns { creates: [products to create], updates: [products to update] }
-     * 
      */
     classify = async records => {
         let ret = {
@@ -67,9 +66,7 @@ class ProductConveyorToCRM {
     }
 
     /**
-     * 
      * @param {*} classification of type { creates: [ZohoCRM-Products], updates: [ZohoCRM-Products] }
-     * @returns 
      */
     upsert = async (classification) => {
         return {
@@ -79,10 +76,8 @@ class ProductConveyorToCRM {
     }
 
     /**
-     * 
      * @param {*} records [] ZohoCRM products 
      * @param {*} callabck ZohoApiCaller.{{some method}}
-     * @returns 
      */
     doAction = async (records, callabck) => {
         let ret = []
@@ -95,7 +90,6 @@ class ProductConveyorToCRM {
     /**
      * @param {*} apiResponses [] api response 
      * @param {*} products [] products
-     * @returns 
      */
     processUpsertResults = async (apiResponses, products) => {
         let ret = []
@@ -103,9 +97,9 @@ class ProductConveyorToCRM {
            const RESPONSE = apiResponses[INDEX]
            const PRODUCT = products[INDEX]
            let aux = undefined 
-           if (RESPONSE.status === "success") {
+           if (RESPONSE.status === SUCCESS) {
                 aux = await this.processSuccessResponse(RESPONSE, PRODUCT)
-            } else if (RESPONSE.status === "error") {
+            } else if (RESPONSE.status === ERROR) {
                 aux = this.processErrorResponse(RESPONSE, PRODUCT)
             }
             ret.push(aux)
@@ -114,34 +108,41 @@ class ProductConveyorToCRM {
     }
 
     /**
-     * @todo definir que hacer con los items que fallaron al quitarse de la bdi
      * @param {*} apiResponse one api response { ... }
      * @param {*} prod one ZohoCRM Product
-     * @returns 
      */
     processSuccessResponse = async (apiResponse, prod) => {
         let ret = undefined
         let resultDeletion = await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
         if (resultDeletion === 1) {
-            ret = {
-                Module_Name: this.caller.getModuleName(),
-                Created_Time: apiResponse.details.Created_Time,
-                id: apiResponse.details.id,
-                message: apiResponse.message,
-                status: apiResponse.status,
-                Product_Code: prod.Product_Code
-            }
+            ret = this.processSuccesDeletionFromBDI(apiResponse, prod)
         } else {
-            ret = {
-                message: "ERROR TO DELETE FROM BDI",
-                Product_Code: prod.Product_Code,
-                status: 'error',
-                date: (new Date()).toDateString()
-            }
-            await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
-            await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
-            // errorsPersistence.save
+            ret = this.processErrorToDeleteFromBDI(prod)
         }
+        return ret
+    }
+
+    processSuccesDeletionFromBDI = async (apiResponse, prod) => {
+        return {
+            Module_Name: this.caller.getModuleName(),
+            Created_Time: apiResponse.details.Created_Time,
+            id: apiResponse.details.id,
+            message: apiResponse.message,
+            status: apiResponse.status,
+            Product_Code: prod.Product_Code
+        }
+    }
+
+    processErrorToDeleteFromBDI = async (prod) =>{
+        let ret = {
+            message: "ERROR TO DELETE FROM BDI",
+            Product_Code: prod.Product_Code,
+            status: ERROR,
+            date: (new Date()).toDateString()
+        }
+        await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
+        await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
+        this.errorsPersistence.save(ret)
         return ret
     }
 
