@@ -1,5 +1,5 @@
 const express = require('express')
-const container = require('../../config/bottle.container')
+const container = require('../../shared/bottle.container')
 
 class ProductsAPI {
 

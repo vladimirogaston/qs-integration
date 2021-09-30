@@ -1,4 +1,4 @@
-const makeTestConveyor = require('../src/config/makeTestConveyor.function')
+const makeTestConveyor = require('./shared/makeTestConveyor.function')
 
 const service = makeTestConveyor()
 service.transport()
