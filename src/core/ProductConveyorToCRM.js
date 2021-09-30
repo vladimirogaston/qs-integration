@@ -25,9 +25,11 @@ class ProductConveyorToCRM {
             let classification = await this.classify(bdiProducts)
             let upsertResult = await this.upsert(classification)
 
-            let result = await this.processUpsertResults(upsertResult.creates, classification.creates)
-            result = await this.processUpsertResults(upsertResult.updates, classification.updates)
-            ret = ret.concat(result)
+            let resultCreates = await this.processUpsertResults(upsertResult.creates, classification.creates)
+            ret = ret.concat(resultCreates)
+
+            let resultUpdates = await this.processUpsertResults(upsertResult.updates, classification.updates)            
+            ret = ret.concat(resultUpdates)
 
             delay(this.DELAY_TIME)
             bdiProducts = await this.readProducts()
@@ -100,7 +102,7 @@ class ProductConveyorToCRM {
            if (RESPONSE.status === SUCCESS) {
                 aux = await this.processSuccessResponse(RESPONSE, PRODUCT)
             } else if (RESPONSE.status === ERROR) {
-                aux = this.processErrorResponse(RESPONSE, PRODUCT)
+                aux = await this.processErrorResponse(RESPONSE, PRODUCT)
             }
             ret.push(aux)
         }
@@ -117,12 +119,12 @@ class ProductConveyorToCRM {
         if (resultDeletion === 1) {
             ret = this.processSuccesDeletionFromBDI(apiResponse, prod)
         } else {
-            ret = this.processErrorToDeleteFromBDI(prod)
+            ret = await this.processErrorToDeleteFromBDI(prod)
         }
         return ret
     }
 
-    processSuccesDeletionFromBDI = async (apiResponse, prod) => {
+    processSuccesDeletionFromBDI = (apiResponse, prod) => {
         return {
             Module_Name: this.caller.getModuleName(),
             Created_Time: apiResponse.details.Created_Time,
@@ -152,12 +154,12 @@ class ProductConveyorToCRM {
      * @param {*} prod one ZohoCRM Product
      * @returns 
      */
-    processErrorResponse = (apiResponse, prod) => {
+    processErrorResponse = async (apiResponse, prod) => {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
 
         this.errorsPersistence.save(apiResponse)
-        this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
+        await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
         return apiResponse
     }
 }

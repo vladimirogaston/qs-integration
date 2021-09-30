@@ -4,6 +4,7 @@ class ErrorsDao {
     }
 
     save = log => {
+        console.log('ErrorsDaoMOCK ', log)
     }
 
     /**
