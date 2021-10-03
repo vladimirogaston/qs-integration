@@ -1,19 +1,22 @@
 const ProductConveyorToCRM = require('../core/ProductConveyorToCRM')
 const ProductsDAO = require('../infraestructure/data/ProductsDAO.mock')
-const LogsDAO = require('../infraestructure/data/LogsDAO.mock')
 const ZohoApiClient = require('../infraestructure/rest/ZohoApiClient.mock')
-const LogsAspect = require('./ConsoleLoggerProxy')
+const ConsoleLoggerProxy = require('./ConsoleLoggerProxy')
+
+const SEARCH_FAILS = true
+const CREATE_FAILS = false
+const UPDATE_FAILS = false
+const CANT_PRODS_BDI = 5
 
 function makeTestConveyor() {
-    const cantProd = 5
-    let productsDao = new ProductsDAO(cantProd)
-    let logsDao = new LogsDAO()
-    let client = new ZohoApiClient('Products', false, true, false)
-    let conveyor = new ProductConveyorToCRM(productsDao, client, logsDao)
+    let productsDao = new ProductsDAO(CANT_PRODS_BDI)
+    let client = new ZohoApiClient('Products', SEARCH_FAILS, CREATE_FAILS, UPDATE_FAILS)
+    let conveyor = new ProductConveyorToCRM(productsDao, client)
 
-    const logs = new LogsAspect()
+    const logs = new ConsoleLoggerProxy()
+    conveyor.processSuccessResponse = logs.after(conveyor.processSuccessResponse)
+    conveyor.processErrorResponse = logs.after(conveyor.processErrorResponse)
     conveyor.transport = logs.messureTime(conveyor.transport)
-    conveyor.processUpsertResults = logs.after(conveyor.processUpsertResults)
     return conveyor
 }
 

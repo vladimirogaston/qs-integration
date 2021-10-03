@@ -1,43 +1,30 @@
-const sqlDb = require('./sqlDB')
-
 class ProductsDAO {
 
-    constructor() {
-        this.sqlConnection = sqlDb
-        this.table = 'dbo.$Sheet1'
+    constructor(sqlConnection) {
+        this.sqlConnection = sqlConnection
     }
 
-    /**
-     * 
-     * @param {} numberOfRecords i.e 39 
-     * @returns []
-     */
     readFirst = async numberOfRecords => {
-        const statement = `SELECT ALL FROM ${this.table} P WHERE P.USR_VTMCLH_LOGGER IS NULL AND USR_VTMCLH_UPDCRM == FALSE LIMIT ${numberOfRecords}`
-        let result = await this.sqlConnection.query(statement)
+        const statement = `SELECT * FROM dbo.sheet1$ P WHERE P.USR_VTMCLH_UPDCRM = 'n' AND P.USR_VTMCLH_LOGERR = '' LIMIT ?`
+        let result = await this.sqlConnection.query(statement, [numberOfRecords])
         return result
     }
 
     updateCRMtoTrueByCode = async code => {
-        const statement = `UPDATE ${this.table} SET USR_VTMCLH_UPDCRM = TRUE WHERE USR_STINTE_INDCOD = ${code}`
-        let result = await this.sqlConnection.query(statement)
+        const statement = `UPDATE dbo.sheet1$ P SET P.USR_VTMCLH_UPDCRM = ? WHERE P.USR_STINTE_INDCOD = ?`
+        let result = await this.sqlConnection.query(statement, ['s', code])
         return result
     }
 
     updateFailsToTrueByCode = async (code, err) => {
-        const statement = `UPDATE ${this.table} SET USR_VTMCLH_LOGGER = ${err} WHERE USR_STINTE_INDCOD = ${code}`
-        let result = await this.sqlConnection.query(statement)
+        const statement = `UPDATE dbo.sheet1$ SET P.USR_VTMCLH_LOGGER = ? WHERE P.USR_STINTE_INDCOD = ?`
+        let result = await this.sqlConnection.query(statement, [err, code])
         return result
     }
 
-    /**
-     * 
-     * @param {*} code is an string i.e '123T'
-     * @returns 
-     */
     deleteByCode = async code => {
-        const statement = `DELETE FROM ${this.table} P WHERE P.USR_STINTE_INDCOD = ${code} AND P.USR_VTMCLH_UPDCRM = TRUE`
-        let result = await this.sqlConnection.query(statement)
+        const statement = `DELETE FROM dbo.sheet1$ P WHERE P.USR_STINTE_INDCOD = ? AND P.USR_VTMCLH_UPDCRM = ?`
+        let result = await this.sqlConnection.query(statement, [code, 's'])
         return result
     }
 }

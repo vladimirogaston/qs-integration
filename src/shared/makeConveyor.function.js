@@ -1,24 +1,21 @@
 const makeTestConveyor = require('./makeTestConveyor.function')
 const makeProdConveyor = require('./makeProdConveyor.function')
-const Bottle = require('bottlejs')
+const makeDevConveyor = require('./makeDevConveyor.function')
 const dotenv = require('dotenv')
-
-const TEST = "TEST"
-const PROD = "PROD"
 
 dotenv.config()
 const ENV = process.env.ENVIRONMENT
 
-var bottle = new Bottle()
-
-bottle.factory('ProductConveyorToCRM', (container) => {
+function makeConveyor() {
     let ret = undefined
-    if(ENV === TEST) {
+    if(ENV === "TEST") {
         ret = makeTestConveyor()
-    } else if(ENV === PROD) {
+    } else if(ENV === "PROD") {
         ret = makeProdConveyor()
+    } else if (ENV === "DEV") {
+        ret = makeDevConveyor()
     }
     return ret
-})
+}
 
-module.exports = bottle.container
+module.exports = makeConveyor
