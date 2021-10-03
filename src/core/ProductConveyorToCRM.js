@@ -9,7 +9,7 @@ class ProductConveyorToCRM {
     constructor(productsPersistence, zohoClient) {
         this.productsPersistence = productsPersistence
         this.caller = zohoClient
-        this.DELAY_TIME = 1000 * 30
+        this.DELAY_TIME = 1000 * 15
     }
 
     transport = async () => {
@@ -88,7 +88,6 @@ class ProductConveyorToCRM {
     }
 
     processSuccessResponse = async (apiResponse, prod) => {
-        //await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
         await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
         return {
             Module_Name: this.caller.getModuleName(),
@@ -104,7 +103,8 @@ class ProductConveyorToCRM {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
         apiResponse.date = new Date()
-        await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
+        const errStr = JSON.stringify(apiResponse.details) + ' ' + JSON.stringify(apiResponse.code)
+        await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString(), errStr)
         return apiResponse
     }
 }

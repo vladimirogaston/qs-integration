@@ -1,7 +1,7 @@
 var mysql = require('mysql2')
 const dotenv = require('dotenv')
 
-class SqlConnection {
+class MariaDbConnection {
     constructor() {
         dotenv.config()
         this.connection = mysql.createConnection({
@@ -48,4 +48,4 @@ class SqlConnection {
     }
 }
 
-module.exports = SqlConnection
+module.exports = MariaDbConnection
