@@ -12,8 +12,7 @@ class ConsoleLoggerProxy {
     after(fn) {
         return async function () {
             var result = await fn.apply(this, arguments)
-            console.log('-- Calling logger after --')
-            console.log('-- function name: ', fn.name)
+            console.log('-- Calling logger after --', fn.name)
             console.log('-- result: ', result)
             return result
         }
