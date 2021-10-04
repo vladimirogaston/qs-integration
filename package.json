@@ -4,23 +4,16 @@
   "description": "",
   "main": "nodejssdk.js",
   "scripts": {
-    "test": "jest"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "jest": "^27.1.1"
-  },
   "dependencies": {
-    "bottlejs": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
-    "lowdb": "^1.0.0",
     "mssql": "^6.2.1",
     "node-fetch": "^2.6.2",
-    "nodemailer": "^6.6.5",
     "sqlstring": "^2.3.2"
   }
 }
