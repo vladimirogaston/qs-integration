@@ -14,7 +14,10 @@ function makeProdConveyor() {
     conveyor.processSuccessResponse = logs.after(conveyor.processSuccessResponse)
     conveyor.processErrorResponse = logs.after(conveyor.processErrorResponse)
     conveyor.transport = logs.messureTime(conveyor.transport)
- 
+    
+    productsDao.readFirst = logs.after(productsDao.readFirst)
+    productsDao.deleteByCode = logs.after(productsDao.deleteByCode)
+    productsDao.updateFailsByCode = logs.after(productsDao.updateFailsByCode)
     return conveyor
 }
 
