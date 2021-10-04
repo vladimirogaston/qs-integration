@@ -88,7 +88,7 @@ class ProductConveyorToCRM {
     }
 
     processSuccessResponse = async (apiResponse, prod) => {
-        await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
+        await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
         return {
             Module_Name: this.caller.getModuleName(),
             Created_Time: apiResponse.details.Created_Time,
@@ -104,7 +104,7 @@ class ProductConveyorToCRM {
         apiResponse.Module_Name = this.module
         apiResponse.date = new Date()
         const errStr = JSON.stringify(apiResponse.details) + ' ' + JSON.stringify(apiResponse.code)
-        await this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString(), errStr)
+        await this.productsPersistence.updateFailsByCode(prod.Product_Code.toString(), errStr)
         return apiResponse
     }
 }

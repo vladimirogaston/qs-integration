@@ -5,7 +5,7 @@ class ProductsDAO {
     }
 
     readFirst = async numberOfRecords => {
-        const statement = `SELECT * FROM dbo.sheet1$ P WHERE P.USR_VTMCLH_UPDCRM = 'n' AND P.USR_VTMCLH_LOGERR = '' LIMIT ?`
+        const statement = `SELECT * FROM dbo.sheet1$ P WHERE P.USR_VTMCLH_LOGERR = '' OR P.USR_VTMCLH_LOGERR IS NULL LIMIT ?`
         let result = await this.sqlConnection.query(statement, [numberOfRecords])
         return result
     }
@@ -16,15 +16,15 @@ class ProductsDAO {
         return result
     }
 
-    updateFailsToTrueByCode = async (code, err) => {
+    updateFailsByCode = async (code, err) => {
         const statement = `UPDATE dbo.sheet1$ SET P.USR_VTMCLH_LOGGER = ? WHERE P.USR_STINTE_INDCOD = ?`
         let result = await this.sqlConnection.query(statement, [err, code])
         return result
     }
 
     deleteByCode = async code => {
-        const statement = `DELETE FROM dbo.sheet1$ P WHERE P.USR_STINTE_INDCOD = ? AND P.USR_VTMCLH_UPDCRM = ?`
-        let result = await this.sqlConnection.query(statement, [code, 's'])
+        const statement = `DELETE FROM dbo.sheet1$ P WHERE P.USR_STINTE_INDCOD = ?`
+        let result = await this.sqlConnection.query(statement, [code])
         return result
     }
 }

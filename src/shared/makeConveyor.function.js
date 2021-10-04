@@ -1,6 +1,5 @@
 const makeTestConveyor = require('./makeTestConveyor.function')
 const makeProdConveyor = require('./makeProdConveyor.function')
-const makeDevConveyor = require('./makeDevConveyor.function')
 const dotenv = require('dotenv')
 
 dotenv.config()
@@ -12,8 +11,6 @@ function makeConveyor() {
         ret = makeTestConveyor()
     } else if(ENV === "PROD") {
         ret = makeProdConveyor()
-    } else if (ENV === "DEV") {
-        ret = makeDevConveyor()
     }
     return ret
 }

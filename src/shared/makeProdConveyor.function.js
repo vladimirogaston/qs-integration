@@ -2,13 +2,14 @@ const ProductConveyorToCRM = require('../core/ProductConveyorToCRM')
 const ProductsDAO = require('../infraestructure/data/ProductsDao')
 const ZohoApiClient = require('../infraestructure/rest/ZohoApiClient')
 const ConsoleLoggerProxy = require('./ConsoleLoggerProxy')
-const dotenv = require('dotenv')
+const SqlServerConnection = require('../infraestructure/data/sqlDB')
 
 dotenv.config()
 const ENV = process.env.ENVIRONMENT
 
 function makeProdConveyor() {
-    let productsDao = new ProductsDAO()
+    let sqlServerConn = new SqlServerConnection()
+    let productsDao = new ProductsDAO(sqlServerConn)
     let client = new ZohoApiClient('Products')
     let conveyor = new ProductConveyorToCRM(productsDao, client)
 
@@ -18,13 +19,6 @@ function makeProdConveyor() {
     conveyor.transport = logs.messureTime(conveyor.transport)
  
     return conveyor
-}
-
-function makeProductsDao() {
-    if(ENV === 'DEV') {
-        
-    }
-    return ''
 }
 
 module.exports = makeProdConveyor
