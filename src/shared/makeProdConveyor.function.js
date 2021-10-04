@@ -4,9 +4,6 @@ const ZohoApiClient = require('../infraestructure/rest/ZohoApiClient')
 const ConsoleLoggerProxy = require('./ConsoleLoggerProxy')
 const SqlServerConnection = require('../infraestructure/data/sqlDB')
 
-dotenv.config()
-const ENV = process.env.ENVIRONMENT
-
 function makeProdConveyor() {
     let sqlServerConn = new SqlServerConnection()
     let productsDao = new ProductsDAO(sqlServerConn)
