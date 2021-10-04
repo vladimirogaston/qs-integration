@@ -1,10 +1,10 @@
 const express = require('express')
-const makeConveyor = require('../../shared/makeConveyor.function')
+const makeProdConveyor = require('../../shared/makeProdConveyor.function')
 
 const router = express.Router()
 router.get('/fetch-products', async (req, res) => {
     try {
-        let service = makeConveyor()
+        let service = makeProdConveyor()
         let result = await service.transport()
         res.status(200).send(result)
     } catch (err) {
