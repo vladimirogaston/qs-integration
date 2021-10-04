@@ -15,10 +15,11 @@ class ZohoApiClient {
 
     search = async criteria => {
         let ret = undefined
-        if(this.searchFounds){
+        if(this.searchFounds == true){
             ret = JSON.parse(JSON.stringify(searchResponse))
+            ret = { data: [ret] }
         }
-        return { data: [ret] }
+        return ret
     }
 
     create = async records => {

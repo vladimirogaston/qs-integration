@@ -1,19 +1,17 @@
 const mapToZohoProduct = require('./bdiToZoho.function')
 const delay = require('./delay.function')
 
+const ERROR = 'error'
+const SUCCESS = 'success'
+
 class ProductConveyorToCRM {
 
-    constructor(productsPersistence, zohoClient, errorsPersistence) {
+    constructor(productsPersistence, zohoClient) {
         this.productsPersistence = productsPersistence
         this.caller = zohoClient
-        this.DELAY_TIME = 1000 * 30
-        this.errorsPersistence = errorsPersistence
+        this.DELAY_TIME = 1000 * 15
     }
 
-    /**
-     * 
-     * @returns [] api responses for each product upsert
-     */
     transport = async () => {
         let ret = []
         let bdiProducts = await this.readProducts()
@@ -22,9 +20,11 @@ class ProductConveyorToCRM {
             let classification = await this.classify(bdiProducts)
             let upsertResult = await this.upsert(classification)
 
-            let result = await this.processUpsertResults(upsertResult.creates, classification.creates)
-            result = await this.processUpsertResults(upsertResult.updates, classification.updates)
-            ret = ret.concat(result)
+            let resultCreates = await this.processUpsertResults(upsertResult.creates, classification.creates)
+            ret = ret.concat(resultCreates)
+
+            let resultUpdates = await this.processUpsertResults(upsertResult.updates, classification.updates)
+            ret = ret.concat(resultUpdates)
 
             delay(this.DELAY_TIME)
             bdiProducts = await this.readProducts()
@@ -32,22 +32,12 @@ class ProductConveyorToCRM {
         return ret
     }
 
-    /**
-    * 
-    * @returns [] ZohoCRM-Products
-    */
     readProducts = async () => {
         let ret = (await this.productsPersistence.readFirst(100))
         ret = ret.map(p => mapToZohoProduct(p))
         return ret
     }
 
-    /**
-     * 
-     * @TODO contemplar searchResponse => invalid! 
-     * @returns { creates: [products to create], updates: [products to update] }
-     * 
-     */
     classify = async records => {
         let ret = {
             creates: [],
@@ -66,11 +56,6 @@ class ProductConveyorToCRM {
         return ret
     }
 
-    /**
-     * 
-     * @param {*} classification of type { creates: [ZohoCRM-Products], updates: [ZohoCRM-Products] }
-     * @returns 
-     */
     upsert = async (classification) => {
         return {
             creates: (await this.doAction(classification.creates, await this.caller.create)),
@@ -78,12 +63,6 @@ class ProductConveyorToCRM {
         }
     }
 
-    /**
-     * 
-     * @param {*} records [] ZohoCRM products 
-     * @param {*} callabck ZohoApiCaller.{{some method}}
-     * @returns 
-     */
     doAction = async (records, callabck) => {
         let ret = []
         if (records.length != 0) {
@@ -92,68 +71,40 @@ class ProductConveyorToCRM {
         return ret
     }
 
-    /**
-     * @param {*} apiResponses [] api response 
-     * @param {*} products [] products
-     * @returns 
-     */
     processUpsertResults = async (apiResponses, products) => {
         let ret = []
         for (let INDEX = 0; INDEX < apiResponses.length; INDEX++) {
-           const RESPONSE = apiResponses[INDEX]
-           const PRODUCT = products[INDEX]
-           let aux = undefined 
-           if (RESPONSE.status === "success") {
+            const RESPONSE = apiResponses[INDEX]
+            const PRODUCT = products[INDEX]
+            let aux = undefined
+            if (RESPONSE.status === SUCCESS) {
                 aux = await this.processSuccessResponse(RESPONSE, PRODUCT)
-            } else if (RESPONSE.status === "error") {
-                aux = this.processErrorResponse(RESPONSE, PRODUCT)
+            } else if (RESPONSE.status === ERROR) {
+                aux = await this.processErrorResponse(RESPONSE, PRODUCT)
             }
             ret.push(aux)
         }
         return ret
     }
 
-    /**
-     * @todo definir que hacer con los items que fallaron al quitarse de la bdi
-     * @param {*} apiResponse one api response { ... }
-     * @param {*} prod one ZohoCRM Product
-     * @returns 
-     */
     processSuccessResponse = async (apiResponse, prod) => {
-        let ret = undefined
-        let resultDeletion = await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
-        if (resultDeletion === 1) {
-            ret = {
-                Module_Name: this.caller.getModuleName(),
-                Created_Time: apiResponse.details.Created_Time,
-                id: apiResponse.details.id,
-                message: apiResponse.message,
-                status: apiResponse.status,
-                Product_Code: prod.Product_Code
-            }
-        } else {
-            ret = {
-                message: "ERROR TO DELETE FROM BDI",
-                Product_Code: prod.Product_Code,
-                status: 'error',
-                date: (new Date()).toDateString()
-            }
+        await this.productsPersistence.deleteByCode(prod.Product_Code.toString())
+        return {
+            Module_Name: this.caller.getModuleName(),
+            Created_Time: apiResponse.details.Created_Time,
+            id: apiResponse.details.id,
+            message: apiResponse.message,
+            status: apiResponse.status,
+            Product_Code: prod.Product_Code
         }
-        return ret
     }
 
-    /**
-     * 
-     * @param {*} apiResponse one api response { ... }
-     * @param {*} prod one ZohoCRM Product
-     * @returns 
-     */
-    processErrorResponse = (apiResponse, prod) => {
+    processErrorResponse = async (apiResponse, prod) => {
         apiResponse.Product_Code = prod.Product_Code
         apiResponse.Module_Name = this.module
-
-        this.errorsPersistence.save(apiResponse)
-        this.productsPersistence.updateFailsToTrueByCode(prod.Product_Code.toString())
+        apiResponse.date = new Date()
+        const errStr = JSON.stringify(apiResponse.details) + ' ' + JSON.stringify(apiResponse.code)
+        await this.productsPersistence.updateFailsByCode(prod.Product_Code.toString(), errStr)
         return apiResponse
     }
 }
