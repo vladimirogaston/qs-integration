@@ -1,11 +1,11 @@
 const mapToZohoProduct = require('./bdiToZoho.function')
 const delay = require('./delay.function')
+const log = require('../core/log.function')
 
 const ERROR = 'error'
 const SUCCESS = 'success'
 
 class ProductConveyorToCRM {
-
     constructor(productsPersistence, zohoClient) {
         this.productsPersistence = productsPersistence
         this.caller = zohoClient
@@ -88,24 +88,16 @@ class ProductConveyorToCRM {
     }
 
     processSuccessResponse = async (apiResponse, prod) => {
-        await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
-        return {
-            Module_Name: this.caller.getModuleName(),
-            Created_Time: apiResponse.details.Created_Time,
-            id: apiResponse.details.id,
-            message: apiResponse.message,
-            status: apiResponse.status,
-            Product_Code: prod.Product_Code
-        }
+        let result = await this.productsPersistence.updateCRMtoTrueByCode(prod.Product_Code.toString())
+        log(SUCCESS, apiResponse, prod, this.caller.getModuleName())
+        return result
     }
 
     processErrorResponse = async (apiResponse, prod) => {
-        apiResponse.Product_Code = prod.Product_Code
-        apiResponse.Module_Name = this.module
-        apiResponse.date = new Date()
         const errStr = JSON.stringify(apiResponse.details) + ' ' + JSON.stringify(apiResponse.code)
-        await this.productsPersistence.updateFailsByCode(prod.Product_Code.toString(), errStr)
-        return apiResponse
+        let result = await this.productsPersistence.updateFailsByCode(prod.Product_Code.toString(), errStr)
+        log(ERROR, apiResponse, prod, this.caller.getModuleName())
+        return result
     }
 }
 
