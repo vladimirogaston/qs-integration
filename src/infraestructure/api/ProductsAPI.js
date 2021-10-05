@@ -2,7 +2,7 @@ const express = require('express')
 const makeProdConveyor = require('../../shared/makeProdConveyor.function')
 
 const router = express.Router()
-router.get('/fetch-products', async (req, res) => {
+router.get('/products', async (req, res) => {
     try {
         let service = makeProdConveyor()
         let result = await service.transport()
