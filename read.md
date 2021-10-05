@@ -9,6 +9,8 @@ PRE:03- AL actualizarse o crearse en la BDI nuevos datos, las columnas USR_VTMCL
 
 PRE:04- La conexion con la BDI no se caerá
 
+PRE:05- La conexion con el Zoho de QS no se caerá
+
 # POST-CONDICIONES
 
 POST:01- Al migrar un registro de la BDI a ZOHO de forma satisfactoria, la columna USR_VTMCLH_UPDCRM se actualizará con el CHAR 's'

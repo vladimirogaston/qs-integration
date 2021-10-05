@@ -5,8 +5,8 @@ const router = express.Router()
 router.get('/products', async (req, res) => {
     try {
         let service = makeProdConveyor()
-        let result = await service.transport()
-        res.status(200).send(result)
+        await service.transport()
+        res.status(200).send('success')
     } catch (err) {
         res.status(500).send(err)
     }

@@ -13,23 +13,18 @@ class ProductConveyorToCRM {
     }
 
     transport = async () => {
-        let ret = []
         let bdiProducts = await this.readProducts()
         while (bdiProducts.length !== 0) {
 
             let classification = await this.classify(bdiProducts)
             let upsertResult = await this.upsert(classification)
 
-            let resultCreates = await this.processUpsertResults(upsertResult.creates, classification.creates)
-            ret = ret.concat(resultCreates)
-
-            let resultUpdates = await this.processUpsertResults(upsertResult.updates, classification.updates)
-            ret = ret.concat(resultUpdates)
+            await this.processUpsertResults(upsertResult.creates, classification.creates)
+            await this.processUpsertResults(upsertResult.updates, classification.updates)
 
             delay(this.DELAY_TIME)
             bdiProducts = await this.readProducts()
         }
-        return ret
     }
 
     readProducts = async () => {
